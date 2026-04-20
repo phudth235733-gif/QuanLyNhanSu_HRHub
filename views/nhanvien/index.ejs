@@ -1,0 +1,71 @@
+<div class="page-header">
+    <div class="header-titles">
+        <h1 class="page-title">Quản Lý Nhân Viên</h1>
+        <p class="page-subtitle">Danh sách nhân sự toàn công ty</p>
+    </div>
+    <div class="header-actions">
+        <a href="/nhanvien/them" class="btn btn-primary">
+            <i class="fa-solid fa-plus"></i> Thêm Nhân Viên
+        </a>
+    </div>
+</div>
+
+<div class="card table-card">
+    <div class="card-body">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Mã NV</th>
+                    <th>Họ & Tên</th>
+                    <th>Chức Vụ</th>
+                    <th>Phòng Ban</th>
+                    <th>Trạng Thái</th>
+                    <th class="actions-col">Thao Tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if(nhanviens.length > 0) { %>
+                    <% nhanviens.forEach(nv => { %>
+                        <tr>
+                            <td class="fw-500"><%= nv.MaNV %></td>
+                            <td>
+                                <div class="user-cell">
+                                    <div class="avatar-sm"><img src="https://ui-avatars.com/api/?name=<%= encodeURIComponent(nv.HoVaTen) %>&background=random" /></div>
+                                    <div class="user-text">
+                                        <a href="/nhanvien/chitiet/<%= nv._id %>" class="user-name" style="text-decoration: none; color: inherit; font-weight: 500;"><%= nv.HoVaTen %></a>
+                                        <span class="user-email"><%= nv.Email %></span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><%= nv.ChucVu %></td>
+                            <td>
+                                <div class="badge badge-outline"><%= nv.PhongBan ? nv.PhongBan.TenPhongBan : 'Chưa phân bổ' %></div>
+                            </td>
+                            <td>
+                                <% if(nv.TrangThai === 'Đang làm việc') { %>
+                                    <span class="status status-success">Đang đi làm</span>
+                                <% } else if(nv.TrangThai === 'Nghỉ phép') { %>
+                                    <span class="status status-warning">Nghỉ phép</span>
+                                <% } else { %>
+                                    <span class="status status-danger"><%= nv.TrangThai %></span>
+                                <% } %>
+                            </td>
+                            <td class="actions-col">
+                                <a href="/nhanvien/chitiet/<%= nv._id %>" class="action-btn btn-view" title="Xem Chi Tiết"><i class="fa-solid fa-eye text-primary"></i></a>
+                                <a href="/nhanvien/sua/<%= nv._id %>" class="action-btn btn-edit" title="Sửa"><i class="fa-solid fa-pen-to-square"></i></a>
+                                <a href="/nhanvien/xoa/<%= nv._id %>" class="action-btn btn-delete" title="Xóa" onclick="return confirm('Bạn có chắc chắn muốn xóa nhân viên này?');"><i class="fa-solid fa-trash"></i></a>
+                            </td>
+                        </tr>
+                    <% }) %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="6" class="text-center empty-state">
+                            <img src="https://cdn-icons-png.flaticon.com/512/4076/4076478.png" width="100" />
+                            <p>Chưa có nhân viên nào trong hệ thống</p>
+                        </td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+</div>

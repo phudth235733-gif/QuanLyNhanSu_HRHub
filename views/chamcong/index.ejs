@@ -1,0 +1,133 @@
+<div class="page-header">
+    <div class="header-titles">
+        <h1 class="page-title">Hệ Thống Chấm Công</h1>
+        <p class="page-subtitle">Hôm nay: <%= moment().format('DD/MM/YYYY') %></p>
+    </div>
+</div>
+
+<div class="dashboard-content">
+    <!-- Bộ điều khiển chấm công -->
+    <div class="card">
+        <div class="card-header">
+            <h3><i class="fa-solid fa-clock text-primary"></i> Ghi Nhận Thời Gian</h3>
+        </div>
+        <div class="card-body text-center" style="padding: 2rem 1rem;">
+            <div id="liveClock" style="font-size: 3rem; font-weight: 700; color: var(--gray-900); margin-bottom: 0.5rem; font-family: 'Courier New', Courier, monospace;">00:00:00</div>
+            <p class="text-muted mb-4"><%= moment().format('dddd, [ngày] DD [tháng] MM [năm] YYYY') %></p>
+            
+            <div class="attendance-actions" style="display: flex; gap: 1.5rem; justify-content: center;">
+                <% if (!todayAttendance) { %>
+                    <form action="/chamcong/checkin" method="POST">
+                        <button type="submit" class="btn btn-primary btn-lg" style="min-width: 180px; height: 60px; font-size: 1.1rem; border-radius: 30px; box-shadow: 0 10px 20px rgba(79, 70, 229, 0.2);">
+                            <i class="fa-solid fa-right-to-bracket"></i> CHECK-IN
+                        </button>
+                    </form>
+                <% } else if (!todayAttendance.CheckOut) { %>
+                    <div style="background: var(--success-light); padding: 1rem 2rem; border-radius: 1rem; border: 1px dashed var(--success); margin-bottom: 2rem; width: 100%; max-width: 400px;">
+                        <p style="color: var(--success); font-weight: 600;">Đã Check-in lúc: <%= moment(todayAttendance.CheckIn).format('HH:mm:ss') %></p>
+                    </div>
+                    <form action="/chamcong/checkout" method="POST">
+                        <button type="submit" class="btn btn-danger btn-lg" style="min-width: 180px; height: 60px; font-size: 1.1rem; border-radius: 30px; box-shadow: 0 10px 20px rgba(239, 68, 68, 0.2);">
+                            <i class="fa-solid fa-right-from-bracket"></i> CHECK-OUT
+                        </button>
+                    </form>
+                <% } else { %>
+                    <div style="background: var(--gray-100); padding: 1.5rem; border-radius: 1rem; text-align: center;">
+                        <i class="fa-solid fa-circle-check" style="font-size: 3rem; color: var(--success); margin-bottom: 1rem;"></i>
+                        <h4 style="color: var(--gray-800);">Bạn đã hoàn thành công việc hôm nay!</h4>
+                        <p class="text-muted mb-1">Giờ làm: <%= moment(todayAttendance.CheckIn).format('HH:mm') %> - <%= moment(todayAttendance.CheckOut).format('HH:mm') %></p>
+                        <p class="text-muted mb-1">Tổng giờ: <%= todayAttendance.WorkHours !== undefined && todayAttendance.WorkHours !== null ? todayAttendance.WorkHours + 'h' : '-' %></p>
+                        <p class="text-muted mb-1">Trễ: <%= todayAttendance.LateMinutes !== undefined && todayAttendance.LateMinutes !== null ? todayAttendance.LateMinutes + 'p' : '-' %></p>
+                        <p class="text-muted">OT: <%= todayAttendance.OvertimeMinutes !== undefined && todayAttendance.OvertimeMinutes !== null ? todayAttendance.OvertimeMinutes + 'p' : '-' %></p>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lịch sử chấm công -->
+    <div class="card table-card">
+        <div class="card-header">
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem;">
+                <h3><i class="fa-solid fa-history text-primary"></i> Lịch Sử Gần Đây</h3>
+                <button type="button" class="btn btn-outline btn-sm" id="refreshAttendanceBtn">
+                    <i class="fa-solid fa-rotate-right"></i> Làm Mới
+                </button>
+            </div>
+        </div>
+        <div class="card-body" style="padding: 1rem 1rem 0;">
+            <form method="GET" action="/chamcong" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; align-items: end; margin-bottom: 1rem;">
+                <div>
+                    <label class="form-label">Từ ngày</label>
+                    <input type="date" name="fromDate" class="form-control" value="<%= fromDate %>">
+                </div>
+                <div>
+                    <label class="form-label">Đến ngày</label>
+                    <input type="date" name="toDate" class="form-control" value="<%= toDate %>">
+                </div>
+                <% if (user && user.role === 'Admin') { %>
+                    <div>
+                        <label class="form-label">Tên nhân viên</label>
+                        <input type="text" name="employeeName" class="form-control" placeholder="Nhập tên hoặc mã" value="<%= employeeName %>">
+                    </div>
+                <% } %>
+                <div style="display: flex; gap: 0.75rem;">
+                    <button type="submit" class="btn btn-primary" style="min-height: 44px;">Lọc</button>
+                    <a href="/chamcong" class="btn btn-outline" style="min-height: 44px;">Xóa</a>
+                </div>
+            </form>
+        </div>
+        <div class="card-body" style="padding: 0;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <% if (user && user.role === 'Admin') { %>
+                            <th>Nhân Viên</th>
+                        <% } %>
+                        <th>Ngày</th>
+                        <th>Giờ Vào</th>
+                        <th>Giờ Ra</th>
+                        <th>Giờ Làm</th>
+                        <th>Trễ (p)</th>
+                        <th>Trạng Thái</th>
+                    </tr>
+                </thead>
+                <tbody id="attendanceHistoryTableBody" data-is-admin="<%= user && user.role === 'Admin' ? 'true' : 'false' %>">
+                    <% if (history.length > 0) { %>
+                        <% history.forEach(item => { %>
+                            <tr>
+                                <% if (user && user.role === 'Admin') { %>
+                                    <td><strong><%= item.NhanVien ? item.NhanVien.HoVaTen : 'N/A' %></strong></td>
+                                <% } %>
+                                <td><%= item.Ngay %></td>
+                                <td><%= item.CheckIn ? moment(item.CheckIn).format('HH:mm:ss') : '-' %></td>
+                                <td><%= item.CheckOut ? moment(item.CheckOut).format('HH:mm:ss') : '-' %></td>
+                                <td><%= item.CheckOut && item.WorkHours !== undefined && item.WorkHours !== null ? item.WorkHours + 'h' : '-' %></td>
+                                <td><%= item.CheckOut && item.LateMinutes !== undefined && item.LateMinutes !== null ? item.LateMinutes + 'p' : '-' %></td>
+                                <td>
+                                    <span class="status status-<%= item.Status || 'warning' %>"><%= item.Status ? item.Status.toUpperCase().replace('_', '/') : 'PENDING' %></span>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="<%= user && user.role === 'Admin' ? 7 : 6 %>" class="text-center">Chưa có dữ liệu chấm công.</td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    function updateClock() {
+        const now = new Date();
+        const h = String(now.getHours()).padStart(2, '0');
+        const m = String(now.getMinutes()).padStart(2, '0');
+        const s = String(now.getSeconds()).padStart(2, '0');
+        document.getElementById('liveClock').innerText = `${h}:${m}:${s}`;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+</script>

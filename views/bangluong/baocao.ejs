@@ -1,0 +1,129 @@
+<div class="page-header no-print">
+    <div class="header-titles">
+        <h1 class="page-title">Báo Cáo Lương Chi Tiết</h1>
+        <p class="page-subtitle">Dữ liệu tổng hợp toàn hệ thống</p>
+    </div>
+    <div class="header-actions">
+        <button onclick="window.print()" class="btn btn-primary">
+            <i class="fa-solid fa-print"></i> In Báo Cáo / Xuất PDF
+        </button>
+        <a href="/bangluong" class="btn btn-outline ml-2">Quay lại</a>
+    </div>
+</div>
+
+<div class="report-container">
+    <div class="card elevation-2">
+        <div class="card-header bg-primary text-white text-center">
+            <h2>Báo Cáo Tổng Hợp Chi Phí Lương</h2>
+            <p>Thời điểm báo cáo: <%= new Date().toLocaleString('vi-VN') %></p>
+        </div>
+        <div class="card-body">
+            <!-- Thống kê tổng quan -->
+            <div class="stats-grid mb-5">
+                <div class="stat-card">
+                    <div class="stat-icon purple"><i class="fa-solid fa-users"></i></div>
+                    <div class="stat-info">
+                        <h3>Tổng số bản ghi</h3>
+                        <h2><%= stats.company.totalRecords %></h2>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green"><i class="fa-solid fa-money-bill-trend-up"></i></div>
+                    <div class="stat-info">
+                        <h3>Tổng thực lãnh</h3>
+                        <h2><%= stats.company.tongThucLanh.toLocaleString('vi-VN') %> đ</h2>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Thống kê theo phòng ban -->
+            <h3 class="section-title"><i class="fa-solid fa-building-user"></i> Tổng hợp theo Phòng Ban</h3>
+            <table class="data-table mb-5">
+                <thead>
+                    <tr>
+                        <th>Tên Phòng Ban</th>
+                        <th class="text-center">Số NV (có lương)</th>
+                        <th>Tổng Lương Cơ Bản</th>
+                        <th>Tổng Thực Lãnh</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% Object.keys(stats.phongban).forEach(pb => { %>
+                        <tr>
+                            <td class="fw-600"><%= pb %></td>
+                            <td class="text-center"><%= stats.phongban[pb].count %></td>
+                            <td><%= stats.phongban[pb].luongCoBan.toLocaleString('vi-VN') %> đ</td>
+                            <td class="text-primary fw-600"><%= stats.phongban[pb].thucLanh.toLocaleString('vi-VN') %> đ</td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+
+            <!-- Chi tiết từng nhân viên -->
+            <h3 class="section-title"><i class="fa-solid fa-list-check"></i> Chi tiết bảng lương nhân sự</h3>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Mã NV</th>
+                        <th>Họ Tên</th>
+                        <th>Kỳ Lương</th>
+                        <th>Lương Cơ Bản</th>
+                        <th>Thưởng</th>
+                        <th>Khấu Trừ</th>
+                        <th>Thực Lãnh</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% stats.details.forEach(bl => { %>
+                        <tr>
+                            <td><%= bl.NhanVien ? bl.NhanVien.MaNV : 'N/A' %></td>
+                            <td class="fw-500"><%= bl.NhanVien ? bl.NhanVien.HoVaTen : 'Nhân viên đã xóa' %></td>
+                            <td><%= bl.KyLuong %></td>
+                            <td><%= bl.LuongCoBan.toLocaleString('vi-VN') %></td>
+                            <td class="text-success">+ <%= bl.Thuong.toLocaleString('vi-VN') %></td>
+                            <td class="text-danger">- <%= bl.KhauTru.toLocaleString('vi-VN') %></td>
+                            <td class="fw-600 text-primary"><%= bl.ThucLanh.toLocaleString('vi-VN') %> đ</td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    @media print {
+        .no-print, .sidebar, .topbar {
+            display: none !important;
+        }
+        .main-content {
+            padding: 0 !important;
+            margin: 0 !important;
+            overflow: visible !important;
+        }
+        .content-container {
+            padding: 0 !important;
+            max-width: 100% !important;
+            width: 100% !important;
+        }
+        .card {
+            box-shadow: none !important;
+            border: 1px solid #eee !important;
+        }
+        .report-container {
+            width: 100%;
+        }
+    }
+    .section-title {
+        margin: 2rem 0 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid var(--primary-light);
+        color: var(--gray-800);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    .bg-primary { background: var(--primary) !important; color: white; }
+    .mb-5 { margin-bottom: 2.5rem; }
+    .fw-600 { font-weight: 600; }
+</style>

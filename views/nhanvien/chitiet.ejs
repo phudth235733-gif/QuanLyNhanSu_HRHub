@@ -1,0 +1,158 @@
+<div class="page-header">
+    <div class="header-titles">
+        <h1 class="page-title">Hồ Sơ Nhân Sự</h1>
+        <p class="page-subtitle">Thông tin chi tiết về <%= nhanvien.HoVaTen %></p>
+    </div>
+    <div class="header-actions">
+        <a href="/nhanvien" class="btn btn-outline mr-2">Quay lại danh sách</a>
+        <% if (user && user.role === 'Admin') { %>
+            <a href="/nhanvien/sua/<%= nhanvien._id %>" class="btn btn-primary">
+                <i class="fa-solid fa-user-pen"></i> Chỉnh sửa hồ sơ
+            </a>
+        <% } %>
+    </div>
+</div>
+
+<div class="profile-container">
+    <div class="row">
+        <!-- Sidebar Profile Card -->
+        <div class="col-md-4">
+            <div class="card profile-main-card text-center">
+                <div class="card-body">
+                    <div class="profile-avatar-large mb-4">
+                        <% if (nhanvien.HinhAnh) { %>
+                            <img src="<%= nhanvien.HinhAnh %>" alt="Avatar">
+                        <% } else { %>
+                            <i class="fa-solid fa-user-tie"></i>
+                        <% } %>
+                    </div>
+                    <h2 class="mb-1"><%= nhanvien.HoVaTen %></h2>
+                    <p class="text-primary fw-600 mb-3"><%= nhanvien.ChucVu %></p>
+                    <div class="badge-status mb-4">
+                        <% if (nhanvien.TrangThai === 'Đang làm việc') { %>
+                            <span class="status status-success"><i class="fa-solid fa-circle-check"></i> <%= nhanvien.TrangThai %></span>
+                        <% } else { %>
+                            <span class="status status-danger"><i class="fa-solid fa-circle-xmark"></i> <%= nhanvien.TrangThai %></span>
+                        <% } %>
+                    </div>
+                    <hr class="my-4">
+                    <div class="profile-id-box p-3 bg-light rounded">
+                        <small class="text-muted d-block uppercase ls-1">Mã Nhân Viên</small>
+                        <span class="fw-700 h4 m-0"><%= nhanvien.MaNV %></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Details Info -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header border-bottom">
+                    <h3 class="card-title m-0"><i class="fa-solid fa-address-card text-primary mr-2"></i> Thông Tin Cơ Bản</h3>
+                </div>
+                <div class="card-body">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label>Họ và Tên</label>
+                            <p><%= nhanvien.HoVaTen %></p>
+                        </div>
+                        <div class="info-item">
+                            <label>Email Công Việc</label>
+                            <p><%= nhanvien.Email %></p>
+                        </div>
+                        <div class="info-item">
+                            <label>Số Điện Thoại</label>
+                            <p><%= nhanvien.SoDienThoai || 'Chưa cập nhật' %></p>
+                        </div>
+                        <div class="info-item">
+                            <label>Phòng Ban</label>
+                            <p><%= nhanvien.PhongBan ? nhanvien.PhongBan.TenPhongBan : 'Chưa phân phối' %></p>
+                        </div>
+                        <div class="info-item">
+                            <label>Ngày Vào Làm</label>
+                            <p><%= nhanvien.NgayVaoLam ? new Date(nhanvien.NgayVaoLam).toLocaleDateString('vi-VN') : '---' %></p>
+                        </div>
+                        <div class="info-item">
+                            <label>Lương Cơ Bản (Ký HĐ)</label>
+                            <p class="fw-600 text-success"><%= nhanvien.Luong.toLocaleString('vi-VN') %> VNĐ</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-header border-bottom">
+                    <h3 class="card-title m-0"><i class="fa-solid fa-shield-halved text-primary mr-2"></i> Bảo mật tài khoản</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted small uppercase fw-600 ls-1 d-block mb-1">Tài khoản đăng nhập</label>
+                            <p class="m-0 fw-600"><i class="fa-solid fa-user text-primary mr-2"></i> <%= nhanvien.Email %></p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted small uppercase fw-600 ls-1 d-block mb-1">Mật khẩu</label>
+                            <p class="m-0 fw-600"><i class="fa-solid fa-lock text-primary mr-2"></i> ••••••••</p>
+                        </div>
+                    </div>
+                    <div class="row align-items-center mt-2 pt-2 border-top">
+                        <div class="col-md-8">
+                            <p class="mb-0">Loại tài khoản: <strong><%= nhanvien.Quyen %></strong></p>
+                            <p class="small text-muted">Mật khẩu đã được mã hóa theo tiêu chuẩn bảo mật hệ thống.</p>
+                        </div>
+                        <div class="col-md-4 text-right">
+                             <a href="/nhanvien/sua/<%= nhanvien._id %>" class="btn btn-primary btn-sm"><i class="fa-solid fa-key"></i> Đổi mật khẩu</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .profile-main-card {
+        border-top: 5px solid var(--primary);
+    }
+    .profile-avatar-large {
+        width: 120px;
+        height: 120px;
+        background: var(--primary-light);
+        color: var(--primary);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3.5rem;
+        margin: 0 auto;
+        overflow: hidden;
+        border: 4px solid white;
+        box-shadow: var(--shadow-md);
+    }
+    .profile-avatar-large img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+    .info-item label {
+        display: block;
+        font-size: 0.8rem;
+        color: var(--gray-500);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 5px;
+    }
+    .info-item p {
+        font-size: 1.1rem;
+        font-weight: 500;
+        margin: 0;
+        color: var(--gray-800);
+    }
+    .ls-1 { letter-spacing: 1px; }
+    .uppercase { text-transform: uppercase; }
+</style>

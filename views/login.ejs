@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> - Premium HR</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, var(--primary-light), #c7d2fe);
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+        }
+        .login-box {
+            background: white;
+            padding: 3rem;
+            border-radius: 1rem;
+            box-shadow: var(--shadow-lg);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .login-header {
+            margin-bottom: 2rem;
+        }
+        .login-header h2 {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        .login-header p {
+            color: var(--gray-500);
+            font-size: 0.95rem;
+        }
+        .modern-form .form-group {
+            text-align: left;
+        }
+        .modern-form .btn {
+            width: 100%;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <div class="login-header">
+            <h2><i class="fa-solid fa-layer-group"></i> HRHub</h2>
+            <p>Hệ thống Quản lý nhân sự</p>
+        </div>
+        
+        <% if (typeof message !== 'undefined' && message) { %>
+            <%- message %>
+        <% } %>
+
+        <form action="/login" method="POST" class="modern-form">
+            <div class="form-group">
+                <label>Mã Nhân Viên / Email</label>
+                <input type="text" name="username" class="form-control" required placeholder="Nhập mã nv hoặc email">
+            </div>
+            <div class="form-group">
+                <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                    <label>Mật Khẩu</label>
+                    <a href="javascript:void(0)" onclick="forgotPassword()" style="font-size: 0.8rem; color: var(--primary); text-decoration: none;">Quên mật khẩu?</a>
+                </div>
+                <div class="password-wrapper" style="position: relative;">
+                    <input type="password" name="password" id="password" class="form-control" required placeholder="Nhập mật khẩu" style="padding-right: 40px;">
+                    <i class="fa-solid fa-eye" id="togglePassword" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--gray-400);"></i>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-lg">Đăng Nhập <i class="fa-solid fa-arrow-right ml-2"></i></button>
+        </form>
+        
+        <script>
+            const togglePassword = document.querySelector('#togglePassword');
+            const password = document.querySelector('#password');
+
+            togglePassword.addEventListener('click', function (e) {
+                // Toggle the type attribute
+                const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+                password.setAttribute('type', type);
+                // Toggle the eye / eye-slash icon
+                this.classList.toggle('fa-eye-slash');
+            });
+
+            function forgotPassword() {
+                alert('Vui lòng liên hệ với Quản trị viên (Admin) để cấp lại mật khẩu.');
+            }
+        </script>
+        
+        <p style="font-family: inter; margin-top: 2rem; font-size: 0.85rem; color: var(--gray-500);">
+            Chào Mừng Bạn Đã Trở Lại Với HRHub
+        </p>
+    </div>
+</body>
+</html>

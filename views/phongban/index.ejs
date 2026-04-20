@@ -1,0 +1,114 @@
+<div class="page-header">
+    <div class="header-titles">
+        <h1 class="page-title">Quản Lý Phòng Ban</h1>
+        <p class="page-subtitle">Sơ đồ và cơ cấu tổ chức</p>
+    </div>
+    <div class="header-actions">
+        <!-- Nút mở Modal thêm phòng ban -->
+        <button class="btn btn-primary" onclick="showAddPBModal()">
+            <i class="fa-solid fa-plus"></i> Thêm Phòng Ban
+        </button>
+    </div>
+</div>
+
+<div class="card table-card">
+    <div class="card-body">
+        <table class="data-table">
+            <thead>
+                    <th>Tên Phòng Ban</th>
+                    <th>Mô Tả</th>
+                    <th>Số Nhân Viên</th>
+                    <th>Ngày Thành Lập</th>
+                    <th class="actions-col">Thao Tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if(phongbans.length > 0) { %>
+                    <% phongbans.forEach(pb => { %>
+                        <tr>
+                             <td class="fw-500 text-primary"><i class="fa-solid fa-layer-group"></i> <%= pb.TenPhongBan %></td>
+                             <td><%= pb.MoTa || 'Không có mô tả' %></td>
+                             <td>
+                                <span class="badge badge-outline" style="border-color: var(--primary); color: var(--primary);">
+                                    <i class="fa-solid fa-user-group mr-1" style="font-size: 0.7rem;"></i> <%= pb.soNhanVien %> thành viên
+                                </span>
+                             </td>
+                             <td><%= new Date(pb.NgayThanhLap).toLocaleDateString('vi-VN') %></td>
+                            <td class="actions-col">
+                                <button class="action-btn btn-edit" title="Sửa" 
+                                    onclick="showEditPBModal('<%= pb._id %>', '<%= pb.TenPhongBan %>', '<%= pb.MoTa %>')">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                                <a href="/phongban/xoa/<%= pb._id %>" class="action-btn btn-delete" title="Xóa" onclick="return confirm('Khi xóa phòng ban, hệ thống sẽ kiểm tra. Bạn có muốn tiếp tục?');"><i class="fa-solid fa-trash"></i></a>
+                            </td>
+                        </tr>
+                    <% }) %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="4" class="text-center empty-state">
+                            <p>Chưa có phòng ban nào</p>
+                        </td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal Thêm/Sửa Phòng Ban -->
+<div id="pbModal" class="modal">
+    <div class="modal-content card">
+        <div class="modal-header">
+            <h3 id="modalTitle">Thêm Phòng Ban Mới</h3>
+            <span class="close" onclick="closePBModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="pbForm" action="/phongban/them" method="POST" class="modern-form">
+                <div class="form-group">
+                    <label>Tên Phòng Ban <span class="required">*</span></label>
+                    <input type="text" name="TenPhongBan" id="pbName" class="form-control" required placeholder="Ví dụ: Phòng Kế Toán">
+                </div>
+                <div class="form-group mt-3">
+                    <label>Mô Tả</label>
+                    <textarea name="MoTa" id="pbDesc" class="form-control" rows="3" placeholder="Chức năng của phòng..."></textarea>
+                </div>
+                <div class="form-actions mt-4 text-right">
+                    <button type="button" class="btn btn-outline" onclick="closePBModal()">Hủy</button>
+                    <button type="submit" class="btn btn-primary ml-2" id="submitBtn">Lưu lại</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showAddPBModal() {
+        document.getElementById('modalTitle').innerText = 'Thêm Phòng Ban Mới';
+        document.getElementById('pbForm').action = '/phongban/them';
+        document.getElementById('pbName').value = '';
+        document.getElementById('pbDesc').value = '';
+        document.getElementById('submitBtn').innerText = 'Lưu Lại';
+        document.getElementById('pbModal').style.display = 'flex';
+    }
+
+    function showEditPBModal(id, name, desc) {
+        document.getElementById('modalTitle').innerText = 'Chỉnh Sửa Phòng Ban';
+        document.getElementById('pbForm').action = '/phongban/sua/' + id;
+        document.getElementById('pbName').value = name;
+        document.getElementById('pbDesc').value = desc;
+        document.getElementById('submitBtn').innerText = 'Cập Nhật';
+        document.getElementById('pbModal').style.display = 'flex';
+    }
+
+    function closePBModal() {
+        document.getElementById('pbModal').style.display = 'none';
+    }
+
+    // Đóng modal khi click ra ngoài
+    window.onclick = function(event) {
+        const modal = document.getElementById('pbModal');
+        if (event.target == modal) {
+            closePBModal();
+        }
+    }
+</script>

@@ -1,0 +1,41 @@
+<aside class="sidebar">
+    <div class="sidebar-header">
+        <h2><i class="fa-solid fa-layer-group"></i> HRHub</h2>
+    </div>
+    <nav class="sidebar-nav">
+        <a href="/" class="<%= path === '/' ? 'active' : '' %>">
+            <i class="fa-solid fa-chart-pie"></i> Dashboard
+        </a>
+        <% if (user && user.role === 'Admin') { %>
+            <a href="/nhanvien" class="<%= path && path.startsWith('/nhanvien') ? 'active' : '' %>">
+                <i class="fa-solid fa-users"></i> Nhân viên
+            </a>
+            <a href="/phongban" class="<%= path && path.startsWith('/phongban') ? 'active' : '' %>">
+                <i class="fa-solid fa-building"></i> Phòng ban
+            </a>
+        <% } %>
+        <a href="/bangluong" class="<%= path && path.startsWith('/bangluong') ? 'active' : '' %>">
+            <i class="fa-solid fa-money-bill-wave"></i> Bảng lương
+        </a>
+        <a href="/chamcong" class="<%= path && path.startsWith('/chamcong') ? 'active' : '' %>">
+            <i class="fa-solid fa-calendar-check"></i> Chấm công
+        </a>
+        <a href="/nghiphep" class="<%= path && path.startsWith('/nghiphep') ? 'active' : '' %>">
+            <i class="fa-solid fa-calendar-minus"></i> Nghỉ phép
+        </a>
+    </nav>
+    <div class="sidebar-footer">
+        <div class="user-info">
+            <div class="avatar">
+                <i class="fa-solid fa-user-tie"></i>
+            </div>
+            <div class="user-details" style="flex: 1;">
+                <span class="user-name"><%= user ? user.name : 'Người dùng' %></span>
+                <span class="user-role"><%= user ? user.role : 'Guest' %></span>
+            </div>
+            <a href="/logout" title="Đăng xuất" style="color: #9CA3AF; transition: color 0.2s;" onmouseover="this.style.color='#EF4444'" onmouseout="this.style.color='#9CA3AF'">
+                <i class="fa-solid fa-right-from-bracket"></i>
+            </a>
+        </div>
+    </div>
+</aside>

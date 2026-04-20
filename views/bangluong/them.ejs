@@ -1,0 +1,85 @@
+<div class="page-header">
+    <div class="header-titles">
+        <h1 class="page-title">Tạo Phiếu Lương</h1>
+        <p class="page-subtitle">Nhập thông tin thu nhập cho nhân viên</p>
+    </div>
+    <div class="header-actions">
+        <a href="/bangluong" class="btn btn-outline">Hủy bỏ</a>
+    </div>
+</div>
+
+<div class="form-container" style="max-width: 800px; margin: 0 auto;">
+    <div class="card shadow-sm">
+        <div class="card-body p-4">
+            <form action="/bangluong/them" method="POST" class="modern-form">
+                <div class="row">
+                    <div class="col-md-6 form-group">
+                        <label>Chọn Nhân Viên <span class="required">*</span></label>
+                        <div class="select-wrapper">
+                            <select name="NhanVien" class="form-control" required>
+                                <option value="">-- Chọn nhân viên --</option>
+                                <% nhanviens.forEach(nv => { %>
+                                    <option value="<%= nv._id %>"><%= nv.MaNV %> - <%= nv.HoVaTen %></option>
+                                <% }) %>
+                            </select>
+                            <i class="fa-solid fa-chevron-down select-icon"></i>
+                        </div>
+                    </div>
+                    <div class="col-md-6 form-group">
+                        <label>Kỳ Lương <span class="required">*</span></label>
+                        <input type="text" name="KyLuong" class="form-control" placeholder="Ví dụ: Tháng 04/2026" required>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-md-4 form-group">
+                        <label>Lương Cơ Bản (VNĐ) <span class="required">*</span></label>
+                        <input type="number" name="LuongCoBan" id="luongCoBan" class="form-control" value="0" required onchange="updateTotal()">
+                    </div>
+                    <div class="col-md-4 form-group">
+                        <label>Tiền Thưởng (VNĐ)</label>
+                        <input type="number" name="Thuong" id="thuong" class="form-control" value="0" onchange="updateTotal()">
+                    </div>
+                    <div class="col-md-4 form-group">
+                        <label>Khoản Khấu Trừ (VNĐ)</label>
+                        <input type="number" name="KhauTru" id="khauTru" class="form-control" value="0" onchange="updateTotal()">
+                    </div>
+                </div>
+
+                <div class="total-preview mt-4 p-3" style="background: var(--primary-light); border-radius: 8px; border: 1px dashed var(--primary);">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-weight: 600; color: var(--gray-700);">Dự kiến thực lãnh:</span>
+                        <span id="totalPreview" style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">0 đ</span>
+                    </div>
+                </div>
+
+                <div class="form-group mt-4">
+                    <label>Trạng Thái Thanh Toán</label>
+                    <div class="select-wrapper">
+                        <select name="TrangThai" class="form-control">
+                            <option value="Chưa thanh toán">Chưa thanh toán</option>
+                            <option value="Đã thanh toán">Đã thanh toán</option>
+                        </select>
+                        <i class="fa-solid fa-chevron-down select-icon"></i>
+                    </div>
+                </div>
+
+                <div class="form-actions mt-5 pt-3" style="border-top: 1px solid var(--gray-200); text-right: right;">
+                    <button type="reset" class="btn btn-outline">Làm lại</button>
+                    <button type="submit" class="btn btn-primary ml-2">Lưu Phiếu Lương</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function updateTotal() {
+        const luong = parseInt(document.getElementById('luongCoBan').value) || 0;
+        const thuong = parseInt(document.getElementById('thuong').value) || 0;
+        const khauTru = parseInt(document.getElementById('khauTru').value) || 0;
+        
+        const total = luong + thuong - khauTru;
+        document.getElementById('totalPreview').innerText = total.toLocaleString('vi-VN') + ' đ';
+    }
+</script>

@@ -1,0 +1,266 @@
+<div class="dashboard-header">
+    <div class="header-titles">
+        <h1 class="page-title">Tổng quan hệ thống</h1>
+        <p class="page-subtitle">Chào mừng trở lại, xem qua tình hình nhân sự hôm nay</p>
+    </div>
+    <div class="header-actions">
+        <button type="button" class="btn btn-outline btn-sm" id="refreshDashboardBtn">
+            <i class="fa-solid fa-rotate-right"></i> Làm Mới
+        </button>
+    </div>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon purple">
+            <i class="fa-solid fa-users"></i>
+        </div>
+        <div class="stat-info">
+            <h3>Tổng Nhân Viên</h3>
+            <h2 data-dashboard-field="totalNhanVien"><%= totalNhanVien %></h2>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon green">
+            <i class="fa-solid fa-user-check"></i>
+        </div>
+        <div class="stat-info">
+            <h3>Đang Làm Việc</h3>
+            <h2 data-dashboard-field="doingWork"><%= doingWork %></h2>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon blue">
+            <i class="fa-solid fa-building"></i>
+        </div>
+        <div class="stat-info">
+            <h3>Phòng Ban</h3>
+            <h2 data-dashboard-field="totalPhongBan"><%= totalPhongBan %></h2>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon orange">
+            <i class="fa-solid fa-calendar-check"></i>
+        </div>
+        <div class="stat-info">
+            <h3>Nghỉ Phép</h3>
+            <h2 data-dashboard-field="nghiPhepHomNay"><%= typeof nghiPhepHomNay !== 'undefined' ? nghiPhepHomNay : 0 %></h2>
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-content">
+    <!-- Biểu đồ cơ cấu nhân sự -->
+    <div class="card chart-card">
+        <div class="card-header">
+            <h3><i class="fa-solid fa-chart-bar text-primary"></i> Cơ Cấu Nhân Sự Theo Phòng Ban</h3>
+        </div>
+        <div class="card-body">
+            <div class="chart-container">
+                <% if(typeof pbStats !== 'undefined' && pbStats && pbStats.length > 0) { %>
+                    <% pbStats.forEach(stat => { %>
+                        <% let percent = totalNhanVien > 0 ? (stat.count / totalNhanVien * 100).toFixed(0) : 0; %>
+                        <div class="chart-row">
+                            <div class="chart-label"><%= stat.name %></div>
+                            <div class="chart-bar-wrapper">
+                                <div class="chart-bar" style="width: <%= percent %>%" title="<%= stat.count %> NV">
+                                    <span class="bar-value"><%= stat.count %></span>
+                                </div>
+                            </div>
+                            <div class="chart-percent"><%= percent %>%</div>
+                        </div>
+                    <% }) %>
+                <% } else { %>
+                    <p class="text-center text-muted">Chưa có dữ liệu thống kê.</p>
+                <% } %>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="dashboard-content" style="grid-template-columns: 1fr; margin-top: 1.5rem;">
+    <div class="card table-card mt-2">
+        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+            <h3><i class="fa-solid fa-bullhorn text-primary"></i> Bảng Thông Báo Công Ty</h3>
+            <div style="display: flex; gap: 0.75rem;">
+                <button type="button" class="btn btn-outline btn-sm" id="refreshNoticesBtn">
+                    <i class="fa-solid fa-rotate-right"></i> Làm Mới
+                </button>
+                <% if (user && user.role === 'Admin') { %>
+                    <button class="btn btn-primary btn-sm" onclick="showAddNoticeModal()">
+                        <i class="fa-solid fa-plus"></i> Thêm Thông Báo
+                    </button>
+                <% } %>
+            </div>
+        </div>
+        <div class="card-body">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th style="width: 15%">Ngày Đăng</th>
+                        <th style="width: 50%">Tiêu Đề Thông Báo</th>
+                        <th style="width: 20%">Mức Độ</th>
+                        <th style="width: 15%" class="text-right">Thao Tác</th>
+                    </tr>
+                </thead>
+                <tbody id="noticeTableBody">
+                    <% if(typeof thongbaos !== 'undefined' && thongbaos.length > 0) { %>
+                        <% thongbaos.forEach(tb => { %>
+                            <tr>
+                                <td><%= new Date(tb.NgayDang).toLocaleDateString('vi-VN') %></td>
+                                <td class="fw-500">
+                                    <a href="javascript:void(0)" class="text-dark" style="text-decoration: none;" 
+                                        onclick="showNoticeDetail('<%= tb.TieuDe %>', '<%= tb.NoiDung %>', '<%= new Date(tb.NgayDang).toLocaleDateString('vi-VN') %>', '<%= tb.MucDo %>')">
+                                        <%= tb.TieuDe %>
+                                    </a>
+                                </td>
+                                <td>
+                                    <% if(tb.MucDo === 'Khẩn cấp') { %>
+                                        <span class="status status-danger"><%= tb.MucDo %></span>
+                                    <% } else { %>
+                                        <span class="status status-success"><%= tb.MucDo %></span>
+                                    <% } %>
+                                </td>
+                                <td class="text-right">
+                                    <button class="action-btn btn-view" title="Xem Chi Tiết" 
+                                        onclick="showNoticeDetail('<%= tb.TieuDe %>', '<%= tb.NoiDung %>', '<%= new Date(tb.NgayDang).toLocaleDateString('vi-VN') %>', '<%= tb.MucDo %>')">
+                                        <i class="fa-solid fa-eye text-primary"></i>
+                                    </button>
+                                    <% if (user && user.role === 'Admin') { %>
+                                        <button class="action-btn btn-edit" title="Sửa" 
+                                            onclick="showEditNoticeModal('<%= tb._id %>', '<%= tb.TieuDe %>', '<%= tb.NoiDung %>', '<%= tb.MucDo %>')">
+                                            <i class="fa-solid fa-pen-to-square"></i>
+                                        </button>
+                                        <a href="/thongbao/xoa/<%= tb._id %>" class="action-btn btn-delete" title="Xóa" 
+                                            onclick="return confirm('Bạn có chắc chắn muốn xóa thông báo này?');">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </a>
+                                    <% } %>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="3" class="text-center empty-state" style="padding: 2rem;">
+                                <img src="https://cdn-icons-png.flaticon.com/512/747/747514.png" width="60" style="opacity:0.3; margin-bottom: 1rem;" />
+                                <p>Chưa có thông báo nào từ ban giám đốc.</p>
+                            </td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Thêm/Sửa Thông Báo -->
+<div id="noticeModal" class="modal">
+    <div class="modal-content card">
+        <div class="modal-header">
+            <h3 id="modalTitle">Đăng Thông Báo Mới</h3>
+            <span class="close" onclick="closeNoticeModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="noticeForm" action="/thongbao/them" method="POST" class="modern-form">
+                <div class="form-group">
+                    <label>Tiêu Đề <span class="required">*</span></label>
+                    <input type="text" name="TieuDe" id="noticeTitle" class="form-control" required placeholder="Nhập tiêu đề thông báo...">
+                </div>
+                <div class="form-group mt-3">
+                    <label>Nội Dung <span class="required">*</span></label>
+                    <textarea name="NoiDung" id="noticeContent" class="form-control" rows="4" required placeholder="Nội dung chi tiết..."></textarea>
+                </div>
+                <div class="form-group mt-3">
+                    <label>Mức Độ Quan Trọng</label>
+                    <div class="select-wrapper">
+                        <select name="MucDo" id="noticeLevel" class="form-control">
+                            <option value="Bình thường">Bình thường</option>
+                            <option value="Khẩn cấp">Khẩn cấp</option>
+                        </select>
+                        <i class="fa-solid fa-chevron-down select-icon"></i>
+                    </div>
+                </div>
+                <div class="form-actions mt-4 text-right">
+                    <button type="button" class="btn btn-outline" onclick="closeNoticeModal()">Hủy</button>
+                    <button type="submit" class="btn btn-primary ml-2" id="submitBtn">Đăng Thông Báo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Xem Chi Tiết Thông Báo -->
+<div id="viewNoticeModal" class="modal">
+    <div class="modal-content card" style="max-width: 600px;">
+        <div class="modal-header">
+            <h3 id="viewTieuDe">Chi Tiết Thông Báo</h3>
+            <span class="close" onclick="closeViewNoticeModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div class="notice-meta mb-3" style="display: flex; gap: 15px; font-size: 0.9rem; color: #666;">
+                <span><i class="fa-solid fa-calendar-days"></i> Ngày: <span id="viewNgayDang"></span></span>
+                <span><i class="fa-solid fa-circle-exclamation"></i> Mức độ: <span id="viewMucDo"></span></span>
+            </div>
+            <div id="viewNoiDung" class="notice-content p-3 bg-light rounded" style="white-space: pre-wrap; line-height: 1.6; min-height: 150px;">
+            </div>
+            <div class="form-actions mt-4 text-right">
+                <button type="button" class="btn btn-primary" onclick="closeViewNoticeModal()">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showAddNoticeModal() {
+        document.getElementById('modalTitle').innerText = 'Đăng Thông Báo Mới';
+        document.getElementById('noticeForm').action = '/thongbao/them';
+        document.getElementById('noticeTitle').value = '';
+        document.getElementById('noticeContent').value = '';
+        document.getElementById('noticeLevel').value = 'Bình thường';
+        document.getElementById('submitBtn').innerText = 'Đăng Thông Báo';
+        document.getElementById('noticeModal').style.display = 'flex';
+    }
+
+    function showEditNoticeModal(id, tieuDe, noiDung, mucDo) {
+        document.getElementById('modalTitle').innerText = 'Chỉnh Sửa Thông Báo';
+        document.getElementById('noticeForm').action = '/thongbao/sua/' + id;
+        document.getElementById('noticeTitle').value = tieuDe;
+        document.getElementById('noticeContent').value = noiDung;
+        document.getElementById('noticeLevel').value = mucDo;
+        document.getElementById('submitBtn').innerText = 'Cập Nhật';
+        document.getElementById('noticeModal').style.display = 'flex';
+    }
+
+    function closeNoticeModal() {
+        document.getElementById('noticeModal').style.display = 'none';
+    }
+
+    function showNoticeDetail(tieuDe, noiDung, ngayDang, mucDo) {
+        document.getElementById('viewTieuDe').innerText = tieuDe;
+        document.getElementById('viewNoiDung').innerText = noiDung;
+        document.getElementById('viewNgayDang').innerText = ngayDang;
+        
+        const mucDoSpan = document.getElementById('viewMucDo');
+        mucDoSpan.innerText = mucDo;
+        mucDoSpan.className = mucDo === 'Khẩn cấp' ? 'badge badge-danger' : 'badge badge-success';
+        
+        document.getElementById('viewNoticeModal').style.display = 'flex';
+    }
+
+    function closeViewNoticeModal() {
+        document.getElementById('viewNoticeModal').style.display = 'none';
+    }
+
+    // Đóng modal khi click ra ngoài
+    window.onclick = function(event) {
+        const modal = document.getElementById('noticeModal');
+        const viewModal = document.getElementById('viewNoticeModal');
+        if (event.target == modal) {
+            closeNoticeModal();
+        }
+        if (event.target == viewModal) {
+            closeViewNoticeModal();
+        }
+    }
+</script>

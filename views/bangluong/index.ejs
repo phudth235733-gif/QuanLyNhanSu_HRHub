@@ -1,0 +1,124 @@
+<div class="page-header">
+    <div class="header-titles">
+        <h1 class="page-title">Quản Lý Bảng Lương</h1>
+        <p class="page-subtitle">Chi tiết lương tháng cho nhân viên toàn công ty</p>
+    </div>
+    <div class="header-actions">
+        <% if (user && user.role === 'Admin') { %>
+            <a href="/bangluong/them" class="btn btn-outline mr-2" style="border-color: var(--primary); color: var(--primary);">
+                <i class="fa-solid fa-plus-circle"></i> Tạo Phiếu Lương
+            </a>
+        <% } %>
+        <a href="/bangluong/baocao" class="btn btn-primary" style="background: linear-gradient(135deg, #059669, #10B981);">
+            <i class="fa-solid fa-file-export"></i> Xuất Báo Cáo
+        </a>
+    </div>
+</div>
+
+<% if (user && user.role === 'Admin' && typeof kyLuongs !== 'undefined' && kyLuongs.length > 0) { %>
+    <div class="card">
+        <div class="card-body" style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;">
+            <div>
+                <h3 style="margin-bottom: 0.35rem;">Gửi Hàng Loạt Theo Kỳ Lương</h3>
+                <p class="page-subtitle">Chọn một kỳ lương để gửi thông báo cho tất cả nhân viên có email.</p>
+            </div>
+            <form action="/bangluong/gui-email-hang-loat" method="POST" style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+                <select name="KyLuong" class="form-control" style="min-width: 220px;" required>
+                    <option value="">Chọn kỳ lương</option>
+                    <% kyLuongs.forEach(kyLuong => { %>
+                        <option value="<%= kyLuong %>"><%= kyLuong %></option>
+                    <% }) %>
+                </select>
+                <button type="submit" class="btn btn-primary" onclick="return confirm('Gửi email cho toàn bộ nhân viên trong kỳ lương này?');">
+                    <i class="fa-solid fa-paper-plane"></i> Gửi Hàng Loạt
+                </button>
+            </form>
+        </div>
+    </div>
+<% } %>
+
+<div class="card table-card">
+    <div class="card-body">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Kỳ Lương</th>
+                    <th>Nhân Viên</th>
+                    <th>Lương Cơ Bản</th>
+                    <th>Thưởng / Khấu Trừ</th>
+                    <th>Thực Lãnh</th>
+                    <th>Trạng Thái</th>
+                    <% if (user && user.role === 'Admin') { %>
+                        <th class="text-right">Thao Tác</th>
+                    <% } %>
+                </tr>
+            </thead>
+            <tbody>
+                <% if(typeof bangluongs !== 'undefined' && bangluongs.length > 0) { %>
+                    <% bangluongs.forEach(bl => { %>
+                        <tr>
+                            <td class="fw-500"><%= bl.KyLuong %></td>
+                            <td>
+                                <div class="user-cell">
+                                    <% if(bl.NhanVien) { %>
+                                        <div class="user-text">
+                                            <span class="user-name"><%= bl.NhanVien.HoVaTen %></span>
+                                            <span class="user-email"><%= bl.NhanVien.MaNV %></span>
+                                        </div>
+                                    <% } else { %>
+                                        <span class="user-name text-danger">Nhân viên đã xóa</span>
+                                    <% } %>
+                                </div>
+                            </td>
+                            <td><%= bl.LuongCoBan.toLocaleString('vi-VN') %> đ</td>
+                            <td>
+                                <% if(bl.Thuong > 0) { %> <span class="text-success">+ <%= bl.Thuong.toLocaleString('vi-VN') %></span><br> <% } %>
+                                <% if(bl.KhauTru > 0) { %> <span class="text-danger">- <%= bl.KhauTru.toLocaleString('vi-VN') %></span> <% } %>
+                                <% if(bl.Thuong === 0 && bl.KhauTru === 0) { %> --- <% } %>
+                            </td>
+                            <td class="fw-500 text-primary"><%= bl.ThucLanh.toLocaleString('vi-VN') %> đ</td>
+                            <td>
+                                <% if(bl.TrangThai === 'Đã thanh toán') { %>
+                                    <span class="status status-success"><%= bl.TrangThai %></span>
+                                <% } else { %>
+                                    <span class="status status-warning"><%= bl.TrangThai %></span>
+                                <% } %>
+                            </td>
+                            <% if (user && user.role === 'Admin') { %>
+                                <td class="text-right">
+                                    <% if (bl.NhanVien && bl.NhanVien.Email) { %>
+                                        <form action="/bangluong/gui-email/<%= bl._id %>" method="POST" style="display: inline;">
+                                            <button type="submit" class="action-btn btn-view" title="Gửi email lương"
+                                                onclick="return confirm('Gửi thông báo lương tới <%= bl.NhanVien.Email %>?');">
+                                                <i class="fa-solid fa-envelope text-primary"></i>
+                                            </button>
+                                        </form>
+                                    <% } %>
+                                    <% if (bl.TrangThai !== 'Đã thanh toán') { %>
+                                        <a href="/bangluong/thanh-toan/<%= bl._id %>" class="action-btn btn-success" title="Xác nhận thanh toán"
+                                            onclick="return confirm('Xác nhận phiếu lương của <%= bl.NhanVien ? bl.NhanVien.HoVaTen : 'nhân viên này' %> đã được thanh toán?');">
+                                            <i class="fa-solid fa-money-bill-wave"></i>
+                                        </a>
+                                    <% } %>
+                                    <a href="/bangluong/xoa/<%= bl._id %>" class="action-btn btn-delete" title="Xóa"
+                                        onclick="return confirm('Xác nhận xóa phiếu lương của <%= bl.NhanVien ? bl.NhanVien.HoVaTen : 'nhân viên này' %>?');">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                    </a>
+                                </td>
+                            <% } %>
+                        </tr>
+                    <% }) %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="6" class="text-center empty-state" style="padding: 3rem;">
+                            <img src="https://cdn-icons-png.flaticon.com/512/1000/1000143.png" width="80" style="opacity: 0.3; margin-bottom: 1rem;" />
+                            <p>Chưa có dữ liệu bảng lương trong hệ thống</p>
+                        </td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+

@@ -1,0 +1,26 @@
+{
+  "name": "quanlynhansu",
+  "version": "1.0.0",
+  "description": "Premium HR Management System",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "nodemon index.js",
+    "gmail:oauth": "node scripts/google-gmail-oauth.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^17.4.2",
+    "ejs": "^3.1.9",
+    "express": "^4.22.1",
+    "express-ejs-layouts": "^2.5.1",
+    "express-session": "^1.17.3",
+    "googleapis": "^171.4.0",
+    "moment": "^2.29.4",
+    "mongoose": "^7.8.9"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
